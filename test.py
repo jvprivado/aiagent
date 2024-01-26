@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app)
 
 
-client = OpenAI(api_key="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")
+client = OpenAI(api_key="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")
 
 items = {}
 
@@ -33,6 +33,10 @@ def success():
 
     global bvb
     global currfunc
+
+
+    if currfunc=="":
+        answersreceived = []
     
     if request.method == 'POST':   
 
@@ -62,13 +66,17 @@ def success():
                 {"role": "user", "content": "categories = [\"asking nda\",\"contract\",\"random chat\"] User: "+transcript+" Pick an item from categories array which is most likely the User is asking about Give exact one line only in this format: Item:\n"}
             ]
             )
-            currfunc = items[completion.choices[0].message.content.split(":")[1].strip().lower()]
-            print(currfunc)
-     
-            eval(items[completion.choices[0].message.content.split(":")[1].strip().lower()])
-            
+
+            try:
+                currfunc = items[completion.choices[0].message.content.split(":")[1].strip().lower()]
+                print(currfunc)
+        
+                eval(items[completion.choices[0].message.content.split(":")[1].strip().lower()])
+            except:
+                currfunc = ""
         else:
-           eval(currfunc)
+            ff = ""
+            eval(currfunc)
 
       
         
@@ -132,6 +140,16 @@ def asknda():
     
     if "Notice:" not in completion.choices[0].message.content:
         bvb = completion.choices[0].message.content
+
+        if ":" in bvb:
+            arr = bvb.split("\n")
+            for str1 in arr:
+                if ":" not in str1 and len(str1)>2:
+                    bvb = str1
+                    print(">>>>>>"+bvb)
+                    break
+
+
         genaudio()
 
 
